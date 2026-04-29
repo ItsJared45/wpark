@@ -1,112 +1,160 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
-
-import { Collapsible } from '@/components/ui/collapsible';
-import { ExternalLink } from '@/components/external-link';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Fonts } from '@/constants/theme';
+import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
+import { collection, doc, onSnapshot, updateDoc } from "firebase/firestore";
+import { useEffect, useState } from "react";
+import {
+  FlatList,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  useColorScheme,
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { db } from "./data/firebaseconfig";
 
 export default function TabTwoScreen() {
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === "dark";
+
+  const theme = {
+    background: isDark ? "#000" : "#fff",
+    text: isDark ? "#fff" : "#000",
+    title: isDark ? "#fff" : "#000",
+  };
+  const router = useRouter();
+  const [parkingLots, setParkingLots] = useState([]);
+  const [favoriteLotId, setFavoriteLotId] = useState(null);
+
+  async function setFavorite(lotId) {
+    const settingsRef = doc(db, "settings", "global");
+  
+    await updateDoc(settingsRef, {
+      favoriteLotId: lotId
+    });
+  }
+
+  useEffect(() => {
+    const unsub = onSnapshot(collection(db, "lots"), (snapshot) => {
+      const lotsData = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      setParkingLots(lotsData);
+    });
+
+    return () => unsub();
+  }, []);
+
+  useEffect(() => {
+    const unsub = onSnapshot(doc(db, "settings", "global"), (docSnap) => {
+      setFavoriteLotId(docSnap.data()?.favoriteLotId);
+    });
+  
+    return () => unsub();
+  }, []);
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
-      headerImage={
-        <IconSymbol
-          size={310}
-          color="#808080"
-          name="chevron.left.forwardslash.chevron.right"
-          style={styles.headerImage}
+    <SafeAreaView style={[{ flex: 1, backgroundColor: theme.background }]}>
+      <View style={[styles.headerContainer, { paddingTop: 10, paddingLeft: 20 }]}>
+        <Text style={[styles.title, { color: theme.title }]}>
+          Parking Lots
+        </Text>
+      </View>
+
+      <View style={styles.centerContainer}>
+        <FlatList
+          data={parkingLots}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={styles.listContent}
+
+          renderItem={({ item }) => {
+            const spotsLeft = (item.capacity ?? 0) - (item.count ?? 0);
+            
+            return (
+            <TouchableOpacity
+              style={styles.lotButton}
+              onPress={() => router.push("/lotMap")}
+            >
+              <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", width: "100%"}}>
+              <Text style={[styles.lotText, { color: theme.text}]}>
+                {item.name}
+              </Text>
+
+              <Text style={{ color: theme.text, fontSize: 16}}>
+                {spotsLeft ?? 0} open spots
+              </Text>
+                </View>
+
+                <View style= {{flexDirection: "row", alignItems: "center", width: "90%"}}>
+
+    
+              <TouchableOpacity onPress={() => setFavorite(item.id)}>
+                  
+                <Ionicons
+                  name={favoriteLotId === item.id ? "star" : "star-outline"}
+                  size={24}
+                  color={favoriteLotId === item.id ? "#000" : (isDark ? "#fff" : "#000")}
+                />
+                </TouchableOpacity>
+              <Text style={{fontSize: 10, color: theme.text, padding: 5}}>
+                Last updated: {item.lastUpdated?.toDate().toLocaleTimeString()}
+              </Text> 
+                </View>
+            </TouchableOpacity>
+            )}}
         />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText
-          type="title"
-          style={{
-            fontFamily: Fonts.rounded,
-          }}>
-          Explore
-        </ThemedText>
-      </ThemedView>
-      <ThemedText>This app includes example code to help you get started.</ThemedText>
-      <Collapsible title="File-based routing">
-        <ThemedText>
-          This app has two screens:{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/explore.tsx</ThemedText>
-        </ThemedText>
-        <ThemedText>
-          The layout file in <ThemedText type="defaultSemiBold">app/(tabs)/_layout.tsx</ThemedText>{' '}
-          sets up the tab navigator.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/router/introduction">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Android, iOS, and web support">
-        <ThemedText>
-          You can open this project on Android, iOS, and the web. To open the web version, press{' '}
-          <ThemedText type="defaultSemiBold">w</ThemedText> in the terminal running this project.
-        </ThemedText>
-      </Collapsible>
-      <Collapsible title="Images">
-        <ThemedText>
-          For static images, you can use the <ThemedText type="defaultSemiBold">@2x</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">@3x</ThemedText> suffixes to provide files for
-          different screen densities
-        </ThemedText>
-        <Image
-          source={require('@/assets/images/react-logo.png')}
-          style={{ width: 100, height: 100, alignSelf: 'center' }}
-        />
-        <ExternalLink href="https://reactnative.dev/docs/images">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Light and dark mode components">
-        <ThemedText>
-          This template has light and dark mode support. The{' '}
-          <ThemedText type="defaultSemiBold">useColorScheme()</ThemedText> hook lets you inspect
-          what the user&apos;s current color scheme is, and so you can adjust UI colors accordingly.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/develop/user-interface/color-themes/">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Animations">
-        <ThemedText>
-          This template includes an example of an animated component. The{' '}
-          <ThemedText type="defaultSemiBold">components/HelloWave.tsx</ThemedText> component uses
-          the powerful{' '}
-          <ThemedText type="defaultSemiBold" style={{ fontFamily: Fonts.mono }}>
-            react-native-reanimated
-          </ThemedText>{' '}
-          library to create a waving hand animation.
-        </ThemedText>
-        {Platform.select({
-          ios: (
-            <ThemedText>
-              The <ThemedText type="defaultSemiBold">components/ParallaxScrollView.tsx</ThemedText>{' '}
-              component provides a parallax effect for the header image.
-            </ThemedText>
-          ),
-        })}
-      </Collapsible>
-    </ParallaxScrollView>
+      </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  headerImage: {
-    color: '#808080',
-    bottom: -90,
-    left: -35,
-    position: 'absolute',
+  headerContainer: {
+    justifyContent: "flex-start",
   },
-  titleContainer: {
-    flexDirection: 'row',
-    gap: 8,
+  title: {
+    fontSize: 28,
+    fontWeight: "bold",
+    shadowColor: "#000",
+    shadowOpacity: 0.5,
+    shadowRadius: 6,
+    elevation: 5,
+  },
+  centerContainer: {
+    justifyContent: "center",
+    flex: 1,
+    alignItems: "center",
+  },
+  lotButton: {
+    backgroundColor: "#FFA500",
+    padding: 12,
+    borderRadius: 8,
+    marginVertical: 8,
+    width: 250,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 5,
+  },
+  lotText: {
+    fontSize: 25,
+    fontWeight: "bold",
+    paddingHorizontal: 10,
+    shadowColor: "#000",
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 5,
+  },
+  listContent: {
+    flexGrow: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 5,
   },
 });
