@@ -17,7 +17,7 @@ import {
   View,
   useColorScheme,
 } from "react-native";
-import { db } from "./data/firebaseconfig";
+import { db } from "../../data/firebaseconfig";
 
 
 export default function HomeScreen() {

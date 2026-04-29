@@ -11,7 +11,7 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { db } from "./data/firebaseconfig";
+import { db } from "../../data/firebaseconfig";
 
 export default function TabTwoScreen() {
   const colorScheme = useColorScheme();
