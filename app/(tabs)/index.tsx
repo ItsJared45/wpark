@@ -169,12 +169,12 @@ if (DEMO_MODE) {
       </ImageBackground>
   
       {favoriteLot && (
-  <View style={{ paddingHorizontal: 20, paddingTop: 10, bottom: 250, flexDirection: "row", alignItems: "center" }}>
-    <Text style={{ fontSize: 18, fontWeight: "bold", padding: 10, color: isDark ? "#fff" : "#000" }}>
+  <View style={styles.favoriteContainer}>
+    <Text style={[styles.favoriteText, { color: isDark ? "#fff" : "#000" }]}>
       Favorite Lot: {favoriteLot.name}
     </Text>
 
-    <Text style = {{color: isDark ? "#fff" : "#000"}}>
+    <Text style={{ color: isDark ? "#fff" : "#000" }}>
       {favoriteLot.capacity - favoriteLot.count} spots left
     </Text>
   </View>
@@ -297,5 +297,17 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 8,
     elevation: 5,
-  }
+  },
+  favoriteContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 20,
+    paddingHorizontal: 20,
+  },
+  
+  favoriteText: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 4,
+  },
 });
