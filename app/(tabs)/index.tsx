@@ -150,73 +150,76 @@ if (DEMO_MODE) {
   return (
     <View style={[styles.screen, { backgroundColor: isDark ? "#000" : "#fff" }]}>
   
-
       <ImageBackground
         source={require("../../assets/wpimage1.png")}
         style={styles.topBackground}
       >
-  
         <View style={styles.nameheader}>
           <Text style={{ color: "#000", fontSize: 18, fontWeight: "bold" }}>
             Hi Jared
           </Text>
-          
+  
           <Text style={{ color: "#fff", fontSize: 32, fontWeight: "bold" }}>
             WPARK
           </Text>
         </View>
-  
       </ImageBackground>
   
-      {favoriteLot && (
-  <View style={styles.favoriteContainer}>
-    <Text style={[styles.favoriteText, { color: isDark ? "#fff" : "#000" }]}>
-      Favorite Lot: {favoriteLot.name}
-    </Text>
-
-    <Text style={{ color: isDark ? "#fff" : "#000" }}>
-      {favoriteLot.capacity - favoriteLot.count} spots left
-    </Text>
-  </View>
-)}
-      <View style={styles.center}>
-        {parkedLocation === null ? (
-          <TouchableOpacity style={styles.button} onPress={parkUser}>
-            <View style={{ flexDirection: "row", alignItems: "center" }}>
-              <Text style={[styles.buttonText, { color: isDark ? "#fff" : "#000" }]}>
-                PARK
-              </Text>
+    
+      <View style={styles.middleSection}>
   
-              <Ionicons
-                name="chevron-forward"
-                size={24}
-                color={isDark ? "#fff" : "#000"}
-                style={{ marginLeft: 6 }}
-              />
-            </View>
-          </TouchableOpacity>
-        ) : (
-          <TouchableOpacity style={styles.button} onPress={unpark}>
-            <Text style={[styles.buttonText, { color: isDark ? "#fff" : "#000" }]}>
-              UNPARK
+        {favoriteLot && (
+          <View style={styles.favoriteContainer}>
+            <Text style={[styles.favoriteText, { color: isDark ? "#fff" : "#000" }]}>
+              Favorite Lot: {favoriteLot.name}
             </Text>
-          </TouchableOpacity>
+  
+            <Text style={{ color: isDark ? "#fff" : "#000" }}>
+              {favoriteLot.capacity - favoriteLot.count} spots left
+            </Text>
+          </View>
         )}
+  
+        <View style={styles.center}>
+          {parkedLocation === null ? (
+            <TouchableOpacity style={styles.button} onPress={parkUser}>
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <Text style={[styles.buttonText, { color: isDark ? "#fff" : "#000" }]}>
+                  PARK
+                </Text>
+  
+                <Ionicons
+                  name="chevron-forward"
+                  size={24}
+                  color={isDark ? "#fff" : "#000"}
+                  style={{ marginLeft: 6 }}
+                />
+              </View>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity style={styles.button} onPress={unpark}>
+              <Text style={[styles.buttonText, { color: isDark ? "#fff" : "#000" }]}>
+                UNPARK
+              </Text>
+            </TouchableOpacity>
+          )}
+        </View>
+  
       </View>
   
       {lotName && (
-  <View style={styles.parkedMessage}>
-    <Text
-      style={{
-        color: isDark ? "#fff" : "#000",
-        fontSize: 20,
-        fontWeight: "bold",
-      }}
-    >
-      You are parked in {lotName}
-    </Text>
-  </View>
-)}
+        <View style={styles.parkedMessage}>
+          <Text
+            style={{
+              color: isDark ? "#fff" : "#000",
+              fontSize: 20,
+              fontWeight: "bold",
+            }}
+          >
+            You are parked in {lotName}
+          </Text>
+        </View>
+      )}
   
     </View>
   );
@@ -283,7 +286,7 @@ const styles = StyleSheet.create({
   center: {
     justifyContent: "flex-start",
     alignItems: "center",
-    bottom: 130
+    marginTop: 20
   },
   parkedMessage: {
     position: "absolute",
@@ -309,5 +312,10 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     marginBottom: 4,
+  },
+  middleSection: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
